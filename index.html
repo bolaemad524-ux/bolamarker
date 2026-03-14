@@ -145,7 +145,7 @@
                 <button onclick="closeInfoModal()" class="bg-white p-1 rounded-full text-gray-400 hover:text-red-500 shadow-sm border"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="p-5">
-                <img id="infoModalImage" src="" class="w-full h-40 object-cover rounded-xl mb-4 bg-gray-100 shadow-sm">
+                <img id="infoModalImage" src="" class="w-full h-40 object-cover rounded-xl mb-4 bg-gray-100 shadow-sm" loading="lazy">
                 <h4 id="infoModalName" class="font-bold text-lg text-gray-900 mb-2"></h4>
                 <p id="infoModalDesc" class="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap"></p>
             </div>
@@ -189,16 +189,24 @@
                     
                     <div class="space-y-3 bg-gray-50 p-3 rounded-xl border">
                         <h4 id="formHeader" class="font-bold text-sm text-gray-700 border-b pb-2 mb-2 flex items-center gap-2"><i data-lucide="plus-circle" class="w-4 h-4 text-green-600"></i> إضافة منتج</h4>
-                        <div class="flex justify-center mb-2">
-                             <div class="relative w-full h-32 bg-white border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer overflow-hidden hover:border-blue-500 transition group" onclick="document.getElementById('prodImageInput').click()">
-                                <img id="prodImagePreview" class="absolute inset-0 w-full h-full object-cover hidden">
-                                <div id="prodImagePlaceholder" class="text-center text-xs text-gray-400 group-hover:text-blue-500 transition relative z-10 bg-white/80 px-2 py-1 rounded">
-                                    <i data-lucide="image-plus" class="w-8 h-8 mx-auto mb-1 opacity-50"></i>
-                                    <span id="uploadText">اضغط لاختيار صورة</span>
+                        
+                        <div class="space-y-2 mb-2">
+                            <div class="flex justify-center">
+                                 <div class="relative w-full h-32 bg-white border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center overflow-hidden transition group">
+                                    <img id="prodImagePreview" class="absolute inset-0 w-full h-full object-cover hidden" loading="lazy">
+                                    <div id="prodImagePlaceholder" class="text-center text-xs text-gray-400 group-hover:text-blue-500 transition relative z-10 bg-white/80 px-2 py-1 rounded cursor-pointer" onclick="document.getElementById('prodImageInput').click()">
+                                        <i data-lucide="image-plus" class="w-8 h-8 mx-auto mb-1 opacity-50"></i>
+                                        <span id="uploadText">اضغط لاختيار صورة</span>
+                                    </div>
+                                    <input type="file" id="prodImageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
                                 </div>
-                                <input type="file" id="prodImageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                            </div>
+                            <div class="flex items-center gap-2 px-1">
+                                <span class="text-[10px] font-bold text-gray-400">أو</span>
+                                <input type="text" id="prodImageUrl" placeholder="ضع رابط الصورة هنا (لتوفير المساحة ولتسريع الموقع)" class="w-full p-2 text-xs border rounded-lg focus:ring-2 focus:ring-blue-200 outline-none text-left" dir="ltr" oninput="handleImageUrl(this.value)">
                             </div>
                         </div>
+
                         <input type="hidden" id="editProdId">
                         
                         <input type="text" id="prodName" placeholder="اسم المنتج (مثال: تابلوه، مج)" class="w-full p-3 text-sm border rounded-xl focus:ring-2 focus:ring-blue-200 outline-none">
@@ -210,11 +218,6 @@
                         
                         <input type="number" id="prodPrice" placeholder="السعر بالجنيه" class="w-full p-3 text-sm border rounded-xl focus:ring-2 focus:ring-blue-200 outline-none">
                         
-                        <div class="flex items-center gap-2 px-1 hidden">
-                            <input type="checkbox" id="prodIsMetered" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
-                            <label for="prodIsMetered" class="text-sm text-gray-700 font-bold cursor-pointer select-none">هذا المنتج يباع بالكمية المخصصة</label>
-                        </div>
-
                         <div class="flex gap-2">
                             <button onclick="saveProduct()" id="saveBtn" class="flex-1 bg-green-600 text-white py-3 rounded-xl text-sm font-bold shadow hover:bg-green-700 active:scale-95 transition">حفظ المنتج</button>
                             <button onclick="resetForm()" id="cancelBtn" class="hidden px-4 bg-white border border-red-200 rounded-xl text-red-500 font-bold hover:bg-red-50">إلغاء</button>
@@ -229,6 +232,16 @@
                     <div class="space-y-3 bg-gray-50 p-3 rounded-xl border">
                         <h4 class="font-bold text-sm text-gray-700 border-b pb-2 mb-2 flex items-center gap-2"><i data-lucide="settings" class="w-4 h-4 text-gray-500"></i> الإعدادات</h4>
                         
+                        <div class="bg-white p-2 rounded border space-y-2">
+                            <h5 class="text-xs font-bold text-blue-600 flex items-center gap-1"><i data-lucide="save" class="w-4 h-4"></i> النسخة الاحتياطية لبياناتك</h5>
+                            <p class="text-[10px] text-gray-500">حفظ نسخة من منتجاتك لاسترجاعها في أي وقت</p>
+                            <div class="flex gap-2">
+                                <button onclick="exportBackup()" class="flex-1 bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 hover:bg-green-100 transition"><i data-lucide="download" class="w-4 h-4"></i> تحميل نسخة</button>
+                                <button onclick="document.getElementById('importBackupInput').click()" class="flex-1 bg-orange-50 border border-orange-200 text-orange-700 px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 hover:bg-orange-100 transition"><i data-lucide="upload" class="w-4 h-4"></i> رفع نسخة</button>
+                                <input type="file" id="importBackupInput" accept=".json" class="hidden" onchange="importBackup(event)">
+                            </div>
+                        </div>
+
                         <div class="bg-white p-2 rounded border space-y-2">
                             <h5 class="text-xs font-bold text-gray-500">إدارة الأقسام (تصنيفات المنتجات)</h5>
                             <div class="flex gap-2">
@@ -247,14 +260,14 @@
                             <div class="flex items-center gap-2 mt-2">
                                 <button onclick="document.getElementById('settingLogoInput').click()" class="bg-gray-50 border text-gray-700 px-3 py-2 rounded-lg text-xs font-bold flex-1 flex items-center justify-center gap-1 hover:bg-gray-100 transition"><i data-lucide="image" class="w-4 h-4"></i> الصورة الرئيسية</button>
                                 <input type="file" id="settingLogoInput" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
-                                <img id="settingLogoPreview" class="w-8 h-8 rounded-lg object-cover hidden border bg-gray-100">
+                                <img id="settingLogoPreview" class="w-8 h-8 rounded-lg object-cover hidden border bg-gray-100" loading="lazy">
                                 <button onclick="clearStoreLogo()" id="clearLogoBtn" class="hidden bg-red-50 text-red-500 p-2 rounded-lg border hover:bg-red-100 transition"><i data-lucide="trash" class="w-4 h-4"></i></button>
                             </div>
                             
                             <div class="flex items-center gap-2 mt-2">
                                 <button onclick="document.getElementById('settingHeaderLogoInput').click()" class="bg-blue-50 border text-blue-700 px-3 py-2 rounded-lg text-xs font-bold flex-1 flex items-center justify-center gap-1 hover:bg-blue-100 transition"><i data-lucide="zap" class="w-4 h-4"></i> لوجو الشريط العلوي</button>
                                 <input type="file" id="settingHeaderLogoInput" accept="image/*" class="hidden" onchange="handleHeaderLogoUpload(event)">
-                                <img id="settingHeaderLogoPreview" class="w-8 h-8 rounded-lg object-cover hidden border bg-gray-100">
+                                <img id="settingHeaderLogoPreview" class="w-8 h-8 rounded-lg object-cover hidden border bg-gray-100" loading="lazy">
                                 <button onclick="clearHeaderLogo()" id="clearHeaderLogoBtn" class="hidden bg-red-50 text-red-500 p-2 rounded-lg border hover:bg-red-100 transition"><i data-lucide="trash" class="w-4 h-4"></i></button>
                             </div>
                         </div>
@@ -287,13 +300,9 @@
     <script>
         // --- State & Default Data ---
         const STORE_PREFIX = 'bola_store_';
-        
-        // مسار الصورة المؤقتة
         const placeHolderImg = 'https://via.placeholder.com/400x400/f3f4f6/3b82f6?text=صورة+المنتج';
 
-        // الداتا الأساسية اللي ضفناها
         const defaultProducts = [
-            // هدايا وإكسسوارات
             { id: 101, name: 'منديل كتب كتاب', desc: '', category: 'هدايا وإكسسوارات', price: 100, isMetered: false, image: placeHolderImg },
             { id: 102, name: 'فينيل', desc: '', category: 'هدايا وإكسسوارات', price: 75, isMetered: false, image: placeHolderImg },
             { id: 103, name: 'ساعه', desc: '', category: 'هدايا وإكسسوارات', price: 200, isMetered: false, image: placeHolderImg },
@@ -313,17 +322,14 @@
             { id: 117, name: 'محفظه بني فاتح كبسوله', desc: '', category: 'هدايا وإكسسوارات', price: 150, isMetered: false, image: placeHolderImg },
             { id: 118, name: 'قلم مضئ', desc: '', category: 'هدايا وإكسسوارات', price: 50, isMetered: false, image: placeHolderImg },
             { id: 119, name: 'انسيال عيون', desc: '', category: 'هدايا وإكسسوارات', price: 120, isMetered: false, image: placeHolderImg },
-            // مجات
             { id: 201, name: 'مج ابيض', desc: '', category: 'مجات', price: 100, isMetered: false, image: placeHolderImg },
             { id: 202, name: 'مج بايركس', desc: '', category: 'مجات', price: 85, isMetered: false, image: placeHolderImg },
             { id: 203, name: 'مج حراري', desc: '', category: 'مجات', price: 200, isMetered: false, image: placeHolderImg },
             { id: 204, name: 'مج سحري', desc: '', category: 'مجات', price: 150, isMetered: false, image: placeHolderImg },
-            // ميداليات
             { id: 301, name: 'مديليا فانوس بصورتك', desc: '', category: 'ميداليات', price: 20, isMetered: false, image: placeHolderImg },
             { id: 302, name: 'مدليه مستطيله', desc: '', category: 'ميداليات', price: 25, isMetered: false, image: placeHolderImg },
             { id: 303, name: 'مدليه نوت بوك', desc: '', category: 'ميداليات', price: 85, isMetered: false, image: placeHolderImg },
             { id: 304, name: 'مدليه فانوس', desc: '', category: 'ميداليات', price: 20, isMetered: false, image: placeHolderImg },
-            // تابلوهات وبراويز
             { id: 401, name: 'تابلوه 15*10', desc: '', category: 'تابلوهات وبراويز', price: 35, isMetered: false, image: placeHolderImg },
             { id: 402, name: 'تابلوه 21*15', desc: '', category: 'تابلوهات وبراويز', price: 65, isMetered: false, image: placeHolderImg },
             { id: 403, name: 'تابلوه 30*20', desc: '', category: 'تابلوهات وبراويز', price: 85, isMetered: false, image: placeHolderImg },
@@ -336,7 +342,6 @@
             { id: 410, name: 'برواز 21*15', desc: '', category: 'تابلوهات وبراويز', price: 80, isMetered: false, image: placeHolderImg },
             { id: 411, name: 'برواز 30*20', desc: '', category: 'تابلوهات وبراويز', price: 120, isMetered: false, image: placeHolderImg },
             { id: 412, name: 'برواز 40*30', desc: '', category: 'تابلوهات وبراويز', price: 180, isMetered: false, image: placeHolderImg },
-            // صور وكروت
             { id: 501, name: 'كارت اقل من 10*10', desc: '', category: 'صور وكروت', price: 4, isMetered: false, image: placeHolderImg },
             { id: 502, name: 'كارت 10*10', desc: '', category: 'صور وكروت', price: 4, isMetered: false, image: placeHolderImg },
             { id: 503, name: 'كارت 15*10', desc: '', category: 'صور وكروت', price: 5, isMetered: false, image: placeHolderImg },
@@ -349,11 +354,9 @@
             { id: 510, name: 'صوره 90*60', desc: '', category: 'صور وكروت', price: 300, isMetered: false, image: placeHolderImg },
             { id: 511, name: 'صور شخصيه 4*6', desc: '', category: 'صور وكروت', price: 50, isMetered: false, image: placeHolderImg },
             { id: 512, name: 'صور شخصيه 4*6 مستعجل', desc: '', category: 'صور وكروت', price: 70, isMetered: false, image: placeHolderImg },
-            // عروض
             { id: 601, name: 'عرض 200 ج', desc: 'تابلوه 30*20 + مج + ميدليا', category: 'عروض', price: 200, isMetered: false, image: placeHolderImg },
             { id: 602, name: 'عرض الفلانتين', desc: 'مج + فنوس + مدليا', category: 'عروض', price: 320, isMetered: false, image: placeHolderImg },
             { id: 603, name: 'عرض 250 ج', desc: 'تابلوه 40*30 + مج + ميدليا', category: 'عروض', price: 250, isMetered: false, image: placeHolderImg },
-            // طباعة وتصوير
             { id: 701, name: 'تصوير نسخ', desc: 'الأبيض والأسود (A4)', category: 'طباعة وتصوير', price: 1, isMetered: true, image: placeHolderImg },
             { id: 702, name: 'تصوير البطاقة', desc: 'الأبيض والأسود', category: 'طباعة وتصوير', price: 1.5, isMetered: true, image: placeHolderImg },
             { id: 703, name: 'تصوير وش وضهر', desc: 'الأبيض والأسود (A4)', category: 'طباعة وتصوير', price: 1.5, isMetered: true, image: placeHolderImg },
@@ -366,7 +369,7 @@
             { id: 710, name: 'طباعة ألوان (A3)', desc: 'المقاس الكبير', category: 'طباعة وتصوير', price: 25, isMetered: true, image: placeHolderImg }
         ];
 
-        var products = defaultProducts; // تفعيل المنتجات الافتراضية
+        var products = defaultProducts;
         var cart = JSON.parse(localStorage.getItem(STORE_PREFIX + 'cart')) || [];
         
         var settings = { 
@@ -384,6 +387,48 @@
         
         let currentSearchQuery = '';
         let currentCategory = '';
+
+        // --- Backup Functions ---
+        function exportBackup() {
+            const dataStr = JSON.stringify({ products: window.products, settings: window.settings });
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'bola_store_backup.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('تم تحميل النسخة الاحتياطية بنجاح');
+        }
+
+        function importBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.products && data.settings) {
+                        if(confirm('هل أنت متأكد من استعادة هذه النسخة؟ سيتم مسح المنتجات الحالية ووضع منتجات النسخة.')) {
+                            window.products = data.products;
+                            window.settings = data.settings;
+                            if (window.saveDataToFirebase) window.saveDataToFirebase();
+                            renderProducts();
+                            renderAdminProducts();
+                            applySettings();
+                            showToast('تمت استعادة البيانات بنجاح!');
+                        }
+                    } else {
+                        showToast('ملف النسخة الاحتياطية غير صالح');
+                    }
+                } catch (error) {
+                    showToast('حدث خطأ أثناء قراءة الملف');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
 
         // --- Image Compressor ---
         function compressImage(file, callback) {
@@ -414,6 +459,21 @@
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
+        }
+
+        // --- Image URL Handler ---
+        function handleImageUrl(url) {
+            if(url.trim() !== '') {
+                tempBase64Image = url.trim();
+                document.getElementById('prodImagePreview').src = tempBase64Image;
+                document.getElementById('prodImagePreview').classList.remove('hidden');
+                document.getElementById('prodImagePlaceholder').classList.add('hidden');
+            } else {
+                tempBase64Image = '';
+                document.getElementById('prodImagePreview').src = '';
+                document.getElementById('prodImagePreview').classList.add('hidden');
+                document.getElementById('prodImagePlaceholder').classList.remove('hidden');
+            }
         }
 
         // --- Init ---
@@ -531,7 +591,7 @@
                 grid.innerHTML += `
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative group">
                         <div class="h-32 bg-gray-100 relative overflow-hidden">
-                            <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition duration-300" alt="${p.name}" onerror="this.src='https://via.placeholder.com/200?text=No+Image'">
+                            <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition duration-300" alt="${p.name}" onerror="this.src='https://via.placeholder.com/200?text=No+Image'" loading="lazy">
                             ${infoBtn}${catTag}
                         </div>
                         <div class="p-3">
@@ -629,7 +689,7 @@
                 total += item.price * item.qty; count += item.qty;
                 container.innerHTML += `
                     <div class="flex gap-3 bg-white p-2 rounded-xl border items-center">
-                        <img src="${item.image}" class="w-12 h-12 rounded-lg object-cover bg-gray-50">
+                        <img src="${item.image}" class="w-12 h-12 rounded-lg object-cover bg-gray-50" loading="lazy">
                         <div class="flex-1">
                             <h5 class="text-sm font-bold text-gray-800 line-clamp-1">${item.name}</h5>
                             <span class="text-blue-600 font-bold text-sm">${item.price * item.qty} ج</span>
@@ -760,7 +820,7 @@
                 list.innerHTML += `
                     <div class="flex items-center justify-between bg-white p-2 rounded border">
                         <div class="flex items-center gap-2">
-                            <img src="${p.image}" class="w-8 h-8 object-cover rounded bg-gray-100">
+                            <img src="${p.image}" class="w-8 h-8 object-cover rounded bg-gray-100" loading="lazy">
                             <div><span class="text-xs font-bold line-clamp-1 w-24" title="${p.name}">${p.name}</span><span class="text-[9px] text-gray-400">${catText}</span></div>
                         </div>
                         <div class="flex gap-1">
@@ -775,6 +835,8 @@
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (file) {
+                // تصفير خانة الرابط لو رفع صورة من الجهاز
+                document.getElementById('prodImageUrl').value = ''; 
                 compressImage(file, (compressedResult) => {
                     tempBase64Image = compressedResult;
                     document.getElementById('prodImagePreview').src = tempBase64Image;
@@ -790,7 +852,7 @@
             const desc = document.getElementById('prodDesc').value;
             const category = document.getElementById('prodCategory').value;
             const price = parseFloat(document.getElementById('prodPrice').value);
-            const isMetered = false; // تم توحيدها لتسهيل الاستخدام
+            const isMetered = false; 
             
             if (!name || isNaN(price)) { showToast('يرجى إدخال الاسم والسعر'); return; }
 
@@ -823,6 +885,13 @@
             document.getElementById('prodImagePreview').classList.remove('hidden');
             document.getElementById('prodImagePlaceholder').classList.add('hidden');
             
+            // لو الصورة عبارة عن رابط إنترنت مش صورة من الجهاز، نحطهاله في الخانة عشان يقدر يعدله
+            if(product.image.startsWith('http')) {
+                document.getElementById('prodImageUrl').value = product.image;
+            } else {
+                document.getElementById('prodImageUrl').value = '';
+            }
+            
             document.getElementById('formHeader').innerHTML = '<i data-lucide="edit-3" class="w-4 h-4 text-blue-600"></i> تعديل منتج';
             document.getElementById('cancelBtn').classList.remove('hidden'); document.getElementById('saveBtn').innerText = 'تحديث';
             lucide.createIcons();
@@ -841,6 +910,7 @@
             document.getElementById('editProdId').value = ''; document.getElementById('prodName').value = '';
             document.getElementById('prodDesc').value = ''; document.getElementById('prodCategory').value = ''; 
             document.getElementById('prodPrice').value = '';
+            document.getElementById('prodImageUrl').value = ''; // تصفير رابط الصورة
             tempBase64Image = ''; document.getElementById('prodImagePreview').classList.add('hidden');
             document.getElementById('prodImagePlaceholder').classList.remove('hidden'); document.getElementById('prodImageInput').value = '';
             document.getElementById('formHeader').innerHTML = '<i data-lucide="plus-circle" class="w-4 h-4 text-green-600"></i> إضافة منتج';
@@ -959,7 +1029,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         
-        // تم تغيير اسم الملف في قاعدة البيانات لضمان بداية جديدة بالمنتجات الخاصة بك
         const storeRef = doc(db, "store", "BOLA_Store_Data");
 
         onSnapshot(storeRef, (docSnap) => {
@@ -980,7 +1049,6 @@
                     if(window.populateProductFormCategories) window.populateProductFormCategories();
                 }
             } else {
-                // في حالة عدم وجود بيانات على السيرفر (أول مرة تفتح الموقع) يتم رفع المنتجات الافتراضية فوراً
                 if(window.saveDataToFirebase) window.saveDataToFirebase();
             }
         });
