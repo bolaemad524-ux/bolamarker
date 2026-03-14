@@ -300,7 +300,9 @@
     <script>
         // --- State & Default Data ---
         const STORE_PREFIX = 'bola_store_';
-        const placeHolderImg = 'https://via.placeholder.com/400x400/f3f4f6/3b82f6?text=صورة+المنتج';
+        
+        // صورة مؤقتة مدمجة داخل الكود (تفتح فوراً بدون إنترنت وتتجنب أي حظر)
+        const placeHolderImg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23f8fafc'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='24' font-weight='bold' fill='%239ca3af'%3E%D8%B5%D9%88%D8%B1%D8%A9 %D8%A7%D9%84%D9%85%D9%86%D8%AA%D8%AC%3C/text%3E%3C/svg%3E";
 
         const defaultProducts = [
             { id: 101, name: 'منديل كتب كتاب', desc: '', category: 'هدايا وإكسسوارات', price: 100, isMetered: false, image: placeHolderImg },
@@ -567,7 +569,6 @@
         function setCategory(cat) { currentCategory = cat; renderUserCategories(); renderProducts(); }
         function handleSearch() { currentSearchQuery = document.getElementById('searchInput').value.toLowerCase(); renderProducts(); }
 
-        // --- تحديث طريقة العرض إلى أقسام منظمة ---
         function renderProducts() {
             const grid = document.getElementById('productsGrid');
             if(!grid) return;
@@ -576,31 +577,25 @@
             const searchQ = currentSearchQuery.trim();
 
             if (currentCategory === '') {
-                // حالة عرض (الكل): تقسيم المنتجات إلى أقسام
                 let hasAnyProduct = false;
                 
                 settings.categories.forEach(cat => {
-                    const catProducts = products.filter(p => p.category === cat && p.name.toLowerCase().includes(searchQ));
+                    const catProducts = products.filter(p => p && p.name && p.category === cat && p.name.toLowerCase().includes(searchQ));
                     if (catProducts.length > 0) {
                         hasAnyProduct = true;
-                        
-                        // إضافة عنوان القسم
                         grid.innerHTML += `
                             <div class="col-span-2 md:col-span-3 mt-6 mb-2 flex items-center gap-2 pb-2 border-b-2 border-blue-50">
                                 <span class="bg-blue-500 w-1.5 h-6 rounded-full"></span>
                                 <h3 class="font-extrabold text-xl text-gray-800">${cat}</h3>
                             </div>
                         `;
-                        
-                        // إضافة المنتجات الخاصة بالقسم
                         catProducts.forEach(p => {
                             grid.innerHTML += generateProductHTML(p);
                         });
                     }
                 });
 
-                // معالجة المنتجات التي ليس لها قسم
-                const uncategorized = products.filter(p => (!p.category || !settings.categories.includes(p.category)) && p.name.toLowerCase().includes(searchQ));
+                const uncategorized = products.filter(p => p && p.name && (!p.category || !settings.categories.includes(p.category)) && p.name.toLowerCase().includes(searchQ));
                 if(uncategorized.length > 0) {
                     hasAnyProduct = true;
                     grid.innerHTML += `
@@ -619,8 +614,7 @@
                 }
                 
             } else {
-                // حالة اختيار قسم معين من الشريط العلوي
-                const catProducts = products.filter(p => p.category === currentCategory && p.name.toLowerCase().includes(searchQ));
+                const catProducts = products.filter(p => p && p.name && p.category === currentCategory && p.name.toLowerCase().includes(searchQ));
                 if(catProducts.length === 0) {
                     grid.innerHTML = '<div class="col-span-2 md:col-span-3 text-center text-gray-400 py-10 flex flex-col items-center"><i data-lucide="search-x" class="w-10 h-10 mb-2 opacity-50"></i><p>لم يتم العثور على منتجات</p></div>';
                 } else {
@@ -632,15 +626,16 @@
             lucide.createIcons();
         }
 
-        // دالة إنشاء كارت المنتج بتصميم أمازون المربع الكبير
         function generateProductHTML(p) {
+            // حماية لتأكيد وجود صورة (وإلا نعرض الصورة المؤقتة الجديدة)
+            const imgSource = p.image || placeHolderImg;
             const infoBtn = p.desc && p.desc.trim() !== '' ? `<button onclick="showProductInfo(${p.id})" class="absolute top-2 right-2 bg-white/90 backdrop-blur text-blue-600 px-2 py-1.5 rounded-lg shadow-sm text-[10px] font-bold flex items-center gap-1 hover:bg-blue-50 transition border border-blue-100"><i data-lucide="info" class="w-3 h-3"></i> التفاصيل</button>` : '';
             const catTag = p.category && currentCategory !== '' ? `<span class="text-[9px] bg-white/90 backdrop-blur text-gray-600 px-2 py-1 rounded-md absolute bottom-2 right-2 shadow-sm font-bold border border-gray-100">${p.category}</span>` : '';
 
             return `
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative group flex flex-col hover:shadow-md transition">
                     <div class="aspect-square w-full bg-gray-50 relative overflow-hidden">
-                        <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="${p.name}" onerror="this.src='https://via.placeholder.com/400?text=No+Image'" loading="lazy">
+                        <img src="${imgSource}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="${p.name}" loading="lazy">
                         ${infoBtn}${catTag}
                     </div>
                     <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
@@ -662,7 +657,7 @@
         function showProductInfo(id) {
             const product = products.find(p => p.id === id);
             if (!product) return;
-            document.getElementById('infoModalImage').src = product.image;
+            document.getElementById('infoModalImage').src = product.image || placeHolderImg;
             document.getElementById('infoModalName').innerText = product.name;
             document.getElementById('infoModalDesc').innerText = product.desc || 'لا توجد تفاصيل إضافية.';
             document.getElementById('infoModal').classList.remove('hidden');
@@ -741,7 +736,7 @@
                 total += item.price * item.qty; count += item.qty;
                 container.innerHTML += `
                     <div class="flex gap-3 bg-white p-2 rounded-xl border items-center">
-                        <img src="${item.image}" class="w-12 h-12 rounded-lg object-cover bg-gray-50" loading="lazy">
+                        <img src="${item.image || placeHolderImg}" class="w-12 h-12 rounded-lg object-cover bg-gray-50" loading="lazy">
                         <div class="flex-1">
                             <h5 class="text-sm font-bold text-gray-800 line-clamp-1">${item.name}</h5>
                             <span class="text-blue-600 font-bold text-sm">${item.price * item.qty} ج</span>
@@ -868,11 +863,12 @@
             const list = document.getElementById('adminProductsList'); if(!list) return; list.innerHTML = '';
             if(products.length === 0) { list.innerHTML = '<p class="text-xs text-center text-gray-400 py-2">لا توجد منتجات</p>'; return; }
             products.forEach(p => {
+                if(!p || !p.name) return;
                 const catText = p.category ? `(${p.category})` : '';
                 list.innerHTML += `
                     <div class="flex items-center justify-between bg-white p-2 rounded border">
                         <div class="flex items-center gap-2">
-                            <img src="${p.image}" class="w-8 h-8 object-cover rounded bg-gray-100" loading="lazy">
+                            <img src="${p.image || placeHolderImg}" class="w-8 h-8 object-cover rounded bg-gray-100" loading="lazy">
                             <div><span class="text-xs font-bold line-clamp-1 w-24" title="${p.name}">${p.name}</span><span class="text-[9px] text-gray-400">${catText}</span></div>
                         </div>
                         <div class="flex gap-1">
@@ -931,12 +927,12 @@
             document.getElementById('prodCategory').value = product.category || '';
             document.getElementById('prodPrice').value = product.price;
             
-            tempBase64Image = product.image;
+            tempBase64Image = product.image || placeHolderImg;
             document.getElementById('prodImagePreview').src = tempBase64Image;
             document.getElementById('prodImagePreview').classList.remove('hidden');
             document.getElementById('prodImagePlaceholder').classList.add('hidden');
             
-            if(product.image.startsWith('http')) {
+            if(product.image && product.image.startsWith('http')) {
                 document.getElementById('prodImageUrl').value = product.image;
             } else {
                 document.getElementById('prodImageUrl').value = '';
@@ -1079,7 +1075,8 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         
-        const storeRef = doc(db, "store", "BOLA_Store_Data");
+        // غيرنا اسم المستند لبداية نظيفة جداً وخالية من أي بيانات تالفة
+        const storeRef = doc(db, "store", "BOLA_Store_V3");
 
         onSnapshot(storeRef, (docSnap) => {
             if (docSnap.exists()) {
