@@ -301,7 +301,7 @@
         // --- State & Default Data ---
         const STORE_PREFIX = 'bola_store_';
         
-        // صورة مؤقتة مدمجة داخل الكود (تفتح فوراً بدون إنترنت وتتجنب أي حظر)
+        // الصورة المؤقتة أصبحت مدمجة ككود SVG لا يحتاج لإنترنت لكي يعمل أبداً
         const placeHolderImg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23f8fafc'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='24' font-weight='bold' fill='%239ca3af'%3E%D8%B5%D9%88%D8%B1%D8%A9 %D8%A7%D9%84%D9%85%D9%86%D8%AA%D8%AC%3C/text%3E%3C/svg%3E";
 
         const defaultProducts = [
@@ -627,7 +627,6 @@
         }
 
         function generateProductHTML(p) {
-            // حماية لتأكيد وجود صورة (وإلا نعرض الصورة المؤقتة الجديدة)
             const imgSource = p.image || placeHolderImg;
             const infoBtn = p.desc && p.desc.trim() !== '' ? `<button onclick="showProductInfo(${p.id})" class="absolute top-2 right-2 bg-white/90 backdrop-blur text-blue-600 px-2 py-1.5 rounded-lg shadow-sm text-[10px] font-bold flex items-center gap-1 hover:bg-blue-50 transition border border-blue-100"><i data-lucide="info" class="w-3 h-3"></i> التفاصيل</button>` : '';
             const catTag = p.category && currentCategory !== '' ? `<span class="text-[9px] bg-white/90 backdrop-blur text-gray-600 px-2 py-1 rounded-md absolute bottom-2 right-2 shadow-sm font-bold border border-gray-100">${p.category}</span>` : '';
@@ -932,7 +931,7 @@
             document.getElementById('prodImagePreview').classList.remove('hidden');
             document.getElementById('prodImagePlaceholder').classList.add('hidden');
             
-            if(product.image && product.image.startsWith('http')) {
+            if(product.image && product.image.startsWith('http') && !product.image.startsWith('data:')) {
                 document.getElementById('prodImageUrl').value = product.image;
             } else {
                 document.getElementById('prodImageUrl').value = '';
@@ -1061,7 +1060,7 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, deleteDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyALnF60WmIak3MalBmdUr4ACLs3FhEP-K8",
@@ -1075,45 +1074,76 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         
-        // غيرنا اسم المستند لبداية نظيفة جداً وخالية من أي بيانات تالفة
-        const storeRef = doc(db, "store", "BOLA_Store_V3");
+        // مسارات جديدة ومقسمة لتجنب حد 1 ميجابايت للملف الواحد
+        const settingsRef = doc(db, "Store_Data", "Settings");
+        const productsCol = collection(db, "Store_Products");
 
-        onSnapshot(storeRef, (docSnap) => {
+        // 1. استماع لحظي للإعدادات
+        onSnapshot(settingsRef, (docSnap) => {
             if (docSnap.exists()) {
-                const data = docSnap.data();
-                
-                if(data.products) {
-                    window.products = data.products;
-                    if(window.renderProducts) window.renderProducts();
-                    if(window.renderAdminProducts) window.renderAdminProducts();
-                }
-                
-                if(data.settings) {
-                    window.settings = data.settings;
-                    if(window.applySettings) window.applySettings();
-                    if(window.renderUserCategories) window.renderUserCategories();
-                    if(window.renderAdminCategories) window.renderAdminCategories();
-                    if(window.populateProductFormCategories) window.populateProductFormCategories();
-                }
-            } else {
-                if(window.saveDataToFirebase) window.saveDataToFirebase();
+                window.settings = docSnap.data();
+                if(window.applySettings) window.applySettings();
+                if(window.renderUserCategories) window.renderUserCategories();
+                if(window.renderAdminCategories) window.renderAdminCategories();
+                if(window.populateProductFormCategories) window.populateProductFormCategories();
             }
         });
 
+        // 2. استماع لحظي للمنتجات (כל منتج في ملف لوحده!)
+        onSnapshot(productsCol, (snapshot) => {
+            let loadedProducts = [];
+            snapshot.forEach((doc) => {
+                loadedProducts.push(doc.data());
+            });
+
+            loadedProducts.sort((a, b) => a.id - b.id);
+
+            if (loadedProducts.length > 0) {
+                window.products = loadedProducts;
+                if(window.renderProducts) window.renderProducts();
+                if(window.renderAdminProducts) window.renderAdminProducts();
+            } else {
+                // لو السيرفر فاضي تماماً، نرفع المنتجات الافتراضية
+                if(window.saveDataToFirebase && window.products.length > 0) {
+                    window.saveDataToFirebase();
+                }
+            }
+        });
+
+        // دالة الحفظ الجديدة اللي بترفع المنتجات كملفات منفصلة
         window.saveDataToFirebase = async function() {
             try {
                 const btn = document.getElementById('saveBtn');
                 if(btn) btn.innerText = "جاري الحفظ بالسيرفر...";
                 
-                await setDoc(storeRef, {
-                    products: window.products,
-                    settings: window.settings
+                // حفظ الإعدادات
+                await setDoc(settingsRef, window.settings);
+
+                // حفظ المنتجات دفعة واحدة
+                const batch = writeBatch(db);
+
+                // إضافة المنتجات الجديدة وتحديث القديمة
+                window.products.forEach(p => {
+                    const pRef = doc(productsCol, p.id.toString());
+                    batch.set(pRef, p);
                 });
-                console.log("تم الحفظ في السيرفر بنجاح!");
+
+                // مسح المنتجات اللي إنت حذفتها من المتجر
+                const snapshot = await getDocs(productsCol);
+                const currentIds = window.products.map(p => p.id.toString());
+                snapshot.forEach(doc => {
+                    if(!currentIds.includes(doc.id)) {
+                        batch.delete(doc.ref);
+                    }
+                });
+
+                await batch.commit();
                 
+                console.log("تم الحفظ في السيرفر بنجاح بدون مشاكل المساحة!");
                 if(btn) btn.innerText = "حفظ المنتج";
             } catch (e) {
                 console.error("Error saving: ", e);
+                alert("حدث خطأ أثناء الحفظ. تأكد من الإنترنت.");
                 const btn = document.getElementById('saveBtn');
                 if(btn) btn.innerText = "حفظ المنتج";
             }
