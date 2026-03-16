@@ -53,8 +53,8 @@
         <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
             <div id="adminTrigger" class="flex items-center gap-2 cursor-pointer active:scale-95 transition select-none p-1" onclick="handleAdminTrigger()">
                 <div class="bg-blue-600 rounded-lg shadow-sm flex items-center justify-center overflow-hidden w-9 h-9 p-0.5">
-                    <img id="headerCustomLogo" src="" alt="Logo" class="w-full h-full object-cover hidden rounded-md bg-white">
-                    <i id="headerDefaultIcon" data-lucide="gift" class="w-5 h-5 text-white"></i>
+                    <img id="headerCustomLogo" src="https://i.postimg.cc/jqvtMh4t/FB-IMG-1773465752394.jpg" alt="Logo" class="w-full h-full object-cover rounded-md bg-white">
+                    <i id="headerDefaultIcon" data-lucide="gift" class="w-5 h-5 text-white hidden"></i>
                 </div>
                 <h1 id="headerStoreName" class="font-bold text-lg text-blue-900 leading-tight">BOLA Store</h1>
             </div>
@@ -69,8 +69,8 @@
         <section class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center space-y-4 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-blue-600"></div>
             <div class="relative mx-auto w-32 h-32 bg-gray-50 rounded-full flex items-center justify-center overflow-hidden border-[6px] border-white shadow-lg ring-1 ring-gray-100">
-                <img id="mainLogo" src="" alt="Logo" class="w-full h-full object-cover hidden">
-                <i id="defaultLogoIcon" data-lucide="camera" class="w-12 h-12 text-blue-300"></i>
+                <img id="mainLogo" src="https://i.postimg.cc/jqvtMh4t/FB-IMG-1773465752394.jpg" alt="Logo" class="w-full h-full object-cover">
+                <i id="defaultLogoIcon" data-lucide="camera" class="w-12 h-12 text-blue-300 hidden"></i>
             </div>
             <div>
                 <h2 id="heroStoreName" class="text-2xl font-bold text-gray-900">BOLA Store</h2>
@@ -303,7 +303,6 @@
         
         const placeHolderImg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23f8fafc'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='24' font-weight='bold' fill='%239ca3af'%3E%D8%B5%D9%88%D8%B1%D8%A9 %D8%A7%D9%84%D9%85%D9%86%D8%AA%D8%AC%3C/text%3E%3C/svg%3E";
 
-        // سيتم وضع منتجاتك من النسخة الاحتياطية تلقائيا، وهذه المنتجات تظهر فقط لأول مرة إذا لم يكن هناك إنترنت
         const defaultProducts = [
             { id: 101, name: 'منديل كتب كتاب', desc: '', category: 'هدايا وإكسسوارات', price: 100, isMetered: false, image: placeHolderImg },
             { id: 102, name: 'فينيل', desc: '', category: 'هدايا وإكسسوارات', price: 75, isMetered: false, image: placeHolderImg },
@@ -313,10 +312,18 @@
         var products = defaultProducts;
         var cart = JSON.parse(localStorage.getItem(STORE_PREFIX + 'cart')) || [];
         
+        // تم تثبيت الإعدادات الافتراضية بأرقامك وروابطك، وتعيين رابط الصورة الجديد للشعار والواجهة
         var settings = { 
-            whatsapp: '201000000000', phone: '', facebook: '', pin: '3316',
-            storeName: 'BOLA Store', storeDesc: 'أجمل الهدايا، التابلوهات، وخدمات الطباعة والتصوير',
-            productsTitle: 'منتجاتنا وخدماتنا', storeLogo: '', headerLogo: '',
+            whatsapp: '201285957035', 
+            phone: '01500097079', 
+            facebook: 'https://www.facebook.com/share/1DQgRqh15N/', 
+            pin: '3316',
+            storeName: 'BOLA Store', 
+            storeDesc: 'أجمل الهدايا، التابلوهات، وخدمات الطباعة والتصوير',
+            productsTitle: 'منتجاتنا وخدماتنا', 
+            // تم وضع رابط الصورة الجديدة هنا كإعداد افتراضي
+            storeLogo: 'https://i.postimg.cc/jqvtMh4t/FB-IMG-1773465752394.jpg', 
+            headerLogo: 'https://i.postimg.cc/jqvtMh4t/FB-IMG-1773465752394.jpg',
             dealActive: false, dealTitle: 'خصم خاص', dealDesc: 'اكتشف عروضنا الآن',
             categories: ['هدايا وإكسسوارات', 'مجات', 'ميداليات', 'تابلوهات وبراويز', 'صور وكروت', 'عروض', 'طباعة وتصوير']
         };
@@ -329,7 +336,7 @@
         let currentSearchQuery = '';
         let currentCategory = '';
 
-        // --- Backup Functions (تمت إعادة التفعيل) ---
+        // --- Backup Functions ---
         function exportBackup() {
             const dataStr = JSON.stringify({ products: window.products, settings: window.settings });
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -353,6 +360,14 @@
                     if (data.products && data.settings) {
                         if(confirm('هل أنت متأكد من استعادة هذه النسخة؟ سيتم مسح المنتجات الحالية ووضع منتجات النسخة.')) {
                             window.products = data.products;
+                            
+                            // الحفاظ على بيانات التواصل واللوجو الجديدة إذا كانت النسخة الاحتياطية لا تحتوي عليها
+                            if(!data.settings.whatsapp) data.settings.whatsapp = settings.whatsapp;
+                            if(!data.settings.phone) data.settings.phone = settings.phone;
+                            if(!data.settings.facebook) data.settings.facebook = settings.facebook;
+                            if(!data.settings.storeLogo) data.settings.storeLogo = settings.storeLogo;
+                            if(!data.settings.headerLogo) data.settings.headerLogo = settings.headerLogo;
+
                             window.settings = data.settings;
                             if (window.saveDataToFirebase) await window.saveDataToFirebase();
                             if(window.renderProducts) renderProducts();
@@ -734,6 +749,7 @@
                 document.getElementById('settingDealTitle').value = settings.dealTitle || '';
                 document.getElementById('settingDealDesc').value = settings.dealDesc || '';
                 
+                // تم تعديل هذا الجزء للتعامل مع روابط الصور الافتراضية
                 tempLogoBase64 = settings.storeLogo || '';
                 if(tempLogoBase64) {
                     document.getElementById('settingLogoPreview').src = tempLogoBase64;
@@ -938,25 +954,37 @@
             document.getElementById('settingHeaderLogoInput').value = '';
         }
 
-        function saveSettings() {
-            settings.whatsapp = document.getElementById('linkWhatsapp').value;
-            settings.phone = document.getElementById('linkPhone').value;
-            settings.facebook = document.getElementById('linkFacebook').value;
-            settings.pin = document.getElementById('adminPinSetting').value || '3316';
-            
-            settings.storeName = document.getElementById('settingStoreName').value || 'BOLA Store';
-            settings.storeDesc = document.getElementById('settingStoreDesc').value || 'أجمل الهدايا والتابلوهات';
-            settings.productsTitle = document.getElementById('settingProductsTitle').value || 'منتجاتنا وخدماتنا';
-            
-            settings.storeLogo = tempLogoBase64;
-            settings.headerLogo = tempHeaderLogoBase64;
-            
-            settings.dealActive = document.getElementById('settingDealActive').checked;
-            settings.dealTitle = document.getElementById('settingDealTitle').value;
-            settings.dealDesc = document.getElementById('settingDealDesc').value;
+        async function saveSettings() {
+            const btn = document.getElementById('saveSettingsBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<div class="loader w-4 h-4 border-2 border-white border-t-transparent"></div> جاري الحفظ...';
+            btn.disabled = true;
 
-            if(window.saveDataToFirebase) window.saveDataToFirebase();
-            applySettings(); showToast('تم حفظ الإعدادات بنجاح');
+            try {
+                settings.whatsapp = document.getElementById('linkWhatsapp').value;
+                settings.phone = document.getElementById('linkPhone').value;
+                settings.facebook = document.getElementById('linkFacebook').value;
+                settings.pin = document.getElementById('adminPinSetting').value || '3316';
+                
+                settings.storeName = document.getElementById('settingStoreName').value || 'BOLA Store';
+                settings.storeDesc = document.getElementById('settingStoreDesc').value || 'أجمل الهدايا والتابلوهات';
+                settings.productsTitle = document.getElementById('settingProductsTitle').value || 'منتجاتنا وخدماتنا';
+                
+                settings.dealActive = document.getElementById('settingDealActive').checked;
+                settings.dealTitle = document.getElementById('settingDealTitle').value;
+                settings.dealDesc = document.getElementById('settingDealDesc').value;
+
+                if (tempLogoBase64 !== '') settings.storeLogo = tempLogoBase64;
+                if (tempHeaderLogoBase64 !== '') settings.headerLogo = tempHeaderLogoBase64;
+
+                if(window.saveDataToFirebase) await window.saveDataToFirebase();
+                applySettings(); showToast('تم حفظ الإعدادات بنجاح');
+            } catch(e) {
+                showToast('حدث خطأ أثناء الحفظ');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
         function applySettings() {
@@ -977,16 +1005,31 @@
             const dispProdTitle = document.getElementById('displayProductsTitle');
             if(dispProdTitle) dispProdTitle.innerText = settings.productsTitle || 'منتجاتنا وخدماتنا';
             
+            // تم تعديل هذا الجزء ليعطي الأولوية لروابط الصور الافتراضية المحددة في الكود
             const mainLogo = document.getElementById('mainLogo'), defaultLogoIcon = document.getElementById('defaultLogoIcon');
             if(mainLogo && defaultLogoIcon) {
-                if(settings.storeLogo) { mainLogo.src = settings.storeLogo; mainLogo.classList.remove('hidden'); defaultLogoIcon.classList.add('hidden'); } 
-                else { mainLogo.src = ''; mainLogo.classList.add('hidden'); defaultLogoIcon.classList.remove('hidden'); }
+                if(settings.storeLogo) { 
+                    mainLogo.src = settings.storeLogo; 
+                    mainLogo.classList.remove('hidden'); 
+                    defaultLogoIcon.classList.add('hidden'); 
+                } else { 
+                    mainLogo.src = ''; 
+                    mainLogo.classList.add('hidden'); 
+                    defaultLogoIcon.classList.remove('hidden'); 
+                }
             }
 
             const headerCustomLogo = document.getElementById('headerCustomLogo'), headerDefaultIcon = document.getElementById('headerDefaultIcon');
             if(headerCustomLogo && headerDefaultIcon) {
-                if(settings.headerLogo) { headerCustomLogo.src = settings.headerLogo; headerCustomLogo.classList.remove('hidden'); headerDefaultIcon.classList.add('hidden'); } 
-                else { headerCustomLogo.src = ''; headerCustomLogo.classList.add('hidden'); headerDefaultIcon.classList.remove('hidden'); }
+                if(settings.headerLogo) { 
+                    headerCustomLogo.src = settings.headerLogo; 
+                    headerCustomLogo.classList.remove('hidden'); 
+                    headerDefaultIcon.classList.add('hidden'); 
+                } else { 
+                    headerCustomLogo.src = ''; 
+                    headerCustomLogo.classList.add('hidden'); 
+                    headerDefaultIcon.classList.remove('hidden'); 
+                }
             }
 
             const dealSection = document.getElementById('dealSection');
@@ -994,6 +1037,13 @@
                 if(settings.dealActive) { dealSection.classList.remove('hidden'); document.getElementById('displayDealTitle').innerText = settings.dealTitle || 'عرض خاص'; document.getElementById('displayDealDesc').innerText = settings.dealDesc || 'لفترة محدودة'; } 
                 else { dealSection.classList.add('hidden'); }
             }
+            
+            const wInput = document.getElementById('linkWhatsapp');
+            const pInput = document.getElementById('linkPhone');
+            const fInput = document.getElementById('linkFacebook');
+            if(wInput && !wInput.value) wInput.value = settings.whatsapp || '';
+            if(pInput && !pInput.value) pInput.value = settings.phone || '';
+            if(fInput && !fInput.value) fInput.value = settings.facebook || '';
         }
     </script>
     
