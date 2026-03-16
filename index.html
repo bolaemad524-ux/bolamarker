@@ -203,7 +203,7 @@
                             </div>
                             <div class="flex items-center gap-2 px-1">
                                 <span class="text-[10px] font-bold text-gray-400">أو</span>
-                                <input type="text" id="prodImageUrl" placeholder="ضع رابط الصورة هنا (لتوفير المساحة ولتسريع الموقع)" class="w-full p-2 text-xs border rounded-lg focus:ring-2 focus:ring-blue-200 outline-none text-left" dir="ltr" oninput="handleImageUrl(this.value)">
+                                <input type="text" id="prodImageUrl" placeholder="ضع رابط الصورة هنا" class="w-full p-2 text-xs border rounded-lg focus:ring-2 focus:ring-blue-200 outline-none text-left" dir="ltr" oninput="handleImageUrl(this.value)">
                             </div>
                         </div>
 
@@ -219,7 +219,7 @@
                         <input type="number" id="prodPrice" placeholder="السعر بالجنيه" class="w-full p-3 text-sm border rounded-xl focus:ring-2 focus:ring-blue-200 outline-none">
                         
                         <div class="flex gap-2 mt-2">
-                            <button onclick="saveProduct()" id="saveBtn" class="flex-1 bg-green-600 text-white py-3 rounded-xl text-sm font-bold shadow hover:bg-green-700 active:scale-95 transition">حفظ المنتج</button>
+                            <button onclick="saveProduct()" id="saveBtn" class="flex-1 bg-green-600 text-white py-3 rounded-xl text-sm font-bold shadow hover:bg-green-700 active:scale-95 transition flex justify-center items-center gap-2">حفظ المنتج</button>
                             <button onclick="resetForm()" id="cancelBtn" class="hidden px-4 bg-white border border-red-200 rounded-xl text-red-500 font-bold hover:bg-red-50">إلغاء</button>
                         </div>
                     </div>
@@ -290,7 +290,7 @@
                             <div class="relative"><i data-lucide="lock" class="absolute right-3 top-3 w-4 h-4 text-gray-400"></i><input id="adminPinSetting" type="text" placeholder="الرقم السري للإدارة" class="w-full pr-10 p-2 text-sm border rounded-lg text-left" dir="ltr"></div>
                         </div>
 
-                        <button onclick="saveSettings()" class="w-full bg-gray-800 text-white py-3 rounded-xl text-sm font-bold shadow hover:bg-gray-900 active:scale-95 transition mt-2">حفظ الإعدادات</button>
+                        <button id="saveSettingsBtn" onclick="saveSettings()" class="w-full bg-gray-800 text-white py-3 rounded-xl text-sm font-bold shadow hover:bg-gray-900 active:scale-95 transition mt-2 flex justify-center items-center gap-2">حفظ الإعدادات</button>
                     </div>
                 </div>
             </div>
@@ -301,74 +301,13 @@
         // --- State & Default Data ---
         const STORE_PREFIX = 'bola_store_';
         
-        // الصورة المؤقتة أصبحت مدمجة ككود SVG لا يحتاج لإنترنت لكي يعمل أبداً
         const placeHolderImg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23f8fafc'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='24' font-weight='bold' fill='%239ca3af'%3E%D8%B5%D9%88%D8%B1%D8%A9 %D8%A7%D9%84%D9%85%D9%86%D8%AA%D8%AC%3C/text%3E%3C/svg%3E";
 
+        // سيتم وضع منتجاتك من النسخة الاحتياطية تلقائيا، وهذه المنتجات تظهر فقط لأول مرة إذا لم يكن هناك إنترنت
         const defaultProducts = [
             { id: 101, name: 'منديل كتب كتاب', desc: '', category: 'هدايا وإكسسوارات', price: 100, isMetered: false, image: placeHolderImg },
             { id: 102, name: 'فينيل', desc: '', category: 'هدايا وإكسسوارات', price: 75, isMetered: false, image: placeHolderImg },
-            { id: 103, name: 'ساعه', desc: '', category: 'هدايا وإكسسوارات', price: 200, isMetered: false, image: placeHolderImg },
-            { id: 104, name: 'مرايه سحريه', desc: '', category: 'هدايا وإكسسوارات', price: 200, isMetered: false, image: placeHolderImg },
-            { id: 105, name: 'فانوس', desc: '', category: 'هدايا وإكسسوارات', price: 250, isMetered: false, image: placeHolderImg },
-            { id: 106, name: 'حفر فقط', desc: '', category: 'هدايا وإكسسوارات', price: 40, isMetered: false, image: placeHolderImg },
-            { id: 107, name: 'منيو', desc: '', category: 'هدايا وإكسسوارات', price: 25, isMetered: false, image: placeHolderImg },
-            { id: 108, name: 'سلسله اونه فضى', desc: '', category: 'هدايا وإكسسوارات', price: 120, isMetered: false, image: placeHolderImg },
-            { id: 109, name: 'سلسله عيون', desc: '', category: 'هدايا وإكسسوارات', price: 120, isMetered: false, image: placeHolderImg },
-            { id: 110, name: 'سلسله دمت لى خير سند', desc: '', category: 'هدايا وإكسسوارات', price: 120, isMetered: false, image: placeHolderImg },
-            { id: 111, name: 'سلسله اونه دهبي', desc: '', category: 'هدايا وإكسسوارات', price: 120, isMetered: false, image: placeHolderImg },
-            { id: 112, name: 'سناده', desc: '', category: 'هدايا وإكسسوارات', price: 50, isMetered: false, image: placeHolderImg },
-            { id: 113, name: 'طباعة جراب', desc: '', category: 'هدايا وإكسسوارات', price: 70, isMetered: false, image: placeHolderImg },
-            { id: 114, name: 'محفظه اسود', desc: '', category: 'هدايا وإكسسوارات', price: 150, isMetered: false, image: placeHolderImg },
-            { id: 115, name: 'نوت بوك', desc: '', category: 'هدايا وإكسسوارات', price: 135, isMetered: false, image: placeHolderImg },
-            { id: 116, name: 'محفظه بني غامق كبسوله', desc: '', category: 'هدايا وإكسسوارات', price: 150, isMetered: false, image: placeHolderImg },
-            { id: 117, name: 'محفظه بني فاتح كبسوله', desc: '', category: 'هدايا وإكسسوارات', price: 150, isMetered: false, image: placeHolderImg },
-            { id: 118, name: 'قلم مضئ', desc: '', category: 'هدايا وإكسسوارات', price: 50, isMetered: false, image: placeHolderImg },
-            { id: 119, name: 'انسيال عيون', desc: '', category: 'هدايا وإكسسوارات', price: 120, isMetered: false, image: placeHolderImg },
-            { id: 201, name: 'مج ابيض', desc: '', category: 'مجات', price: 100, isMetered: false, image: placeHolderImg },
-            { id: 202, name: 'مج بايركس', desc: '', category: 'مجات', price: 85, isMetered: false, image: placeHolderImg },
-            { id: 203, name: 'مج حراري', desc: '', category: 'مجات', price: 200, isMetered: false, image: placeHolderImg },
-            { id: 204, name: 'مج سحري', desc: '', category: 'مجات', price: 150, isMetered: false, image: placeHolderImg },
-            { id: 301, name: 'مديليا فانوس بصورتك', desc: '', category: 'ميداليات', price: 20, isMetered: false, image: placeHolderImg },
-            { id: 302, name: 'مدليه مستطيله', desc: '', category: 'ميداليات', price: 25, isMetered: false, image: placeHolderImg },
-            { id: 303, name: 'مدليه نوت بوك', desc: '', category: 'ميداليات', price: 85, isMetered: false, image: placeHolderImg },
-            { id: 304, name: 'مدليه فانوس', desc: '', category: 'ميداليات', price: 20, isMetered: false, image: placeHolderImg },
-            { id: 401, name: 'تابلوه 15*10', desc: '', category: 'تابلوهات وبراويز', price: 35, isMetered: false, image: placeHolderImg },
-            { id: 402, name: 'تابلوه 21*15', desc: '', category: 'تابلوهات وبراويز', price: 65, isMetered: false, image: placeHolderImg },
-            { id: 403, name: 'تابلوه 30*20', desc: '', category: 'تابلوهات وبراويز', price: 85, isMetered: false, image: placeHolderImg },
-            { id: 404, name: 'تابلوه 40*30', desc: '', category: 'تابلوهات وبراويز', price: 135, isMetered: false, image: placeHolderImg },
-            { id: 405, name: 'تابلوه 50*40', desc: '', category: 'تابلوهات وبراويز', price: 180, isMetered: false, image: placeHolderImg },
-            { id: 406, name: 'تابلوه 60*50', desc: '', category: 'تابلوهات وبراويز', price: 225, isMetered: false, image: placeHolderImg },
-            { id: 407, name: 'تابلوه 70*50', desc: '', category: 'تابلوهات وبراويز', price: 250, isMetered: false, image: placeHolderImg },
-            { id: 408, name: 'تابلوه 90*60', desc: '', category: 'تابلوهات وبراويز', price: 400, isMetered: false, image: placeHolderImg },
-            { id: 409, name: 'تابلوه 50x70 مجمع صور', desc: '', category: 'تابلوهات وبراويز', price: 250, isMetered: false, image: placeHolderImg },
-            { id: 410, name: 'برواز 21*15', desc: '', category: 'تابلوهات وبراويز', price: 80, isMetered: false, image: placeHolderImg },
-            { id: 411, name: 'برواز 30*20', desc: '', category: 'تابلوهات وبراويز', price: 120, isMetered: false, image: placeHolderImg },
-            { id: 412, name: 'برواز 40*30', desc: '', category: 'تابلوهات وبراويز', price: 180, isMetered: false, image: placeHolderImg },
-            { id: 501, name: 'كارت اقل من 10*10', desc: '', category: 'صور وكروت', price: 4, isMetered: false, image: placeHolderImg },
-            { id: 502, name: 'كارت 10*10', desc: '', category: 'صور وكروت', price: 4, isMetered: false, image: placeHolderImg },
-            { id: 503, name: 'كارت 15*10', desc: '', category: 'صور وكروت', price: 5, isMetered: false, image: placeHolderImg },
-            { id: 504, name: 'صوره 21*15', desc: '', category: 'صور وكروت', price: 10, isMetered: false, image: placeHolderImg },
-            { id: 505, name: 'صوره 30*20', desc: '', category: 'صور وكروت', price: 40, isMetered: false, image: placeHolderImg },
-            { id: 506, name: 'صوره 40*30', desc: '', category: 'صور وكروت', price: 80, isMetered: false, image: placeHolderImg },
-            { id: 507, name: 'صوره 50*40', desc: '', category: 'صور وكروت', price: 120, isMetered: false, image: placeHolderImg },
-            { id: 508, name: 'صوره 60*50', desc: '', category: 'صور وكروت', price: 180, isMetered: false, image: placeHolderImg },
-            { id: 509, name: 'صوره 70*50', desc: '', category: 'صور وكروت', price: 220, isMetered: false, image: placeHolderImg },
-            { id: 510, name: 'صوره 90*60', desc: '', category: 'صور وكروت', price: 300, isMetered: false, image: placeHolderImg },
-            { id: 511, name: 'صور شخصيه 4*6', desc: '', category: 'صور وكروت', price: 50, isMetered: false, image: placeHolderImg },
-            { id: 512, name: 'صور شخصيه 4*6 مستعجل', desc: '', category: 'صور وكروت', price: 70, isMetered: false, image: placeHolderImg },
-            { id: 601, name: 'عرض 200 ج', desc: 'تابلوه 30*20 + مج + ميدليا', category: 'عروض', price: 200, isMetered: false, image: placeHolderImg },
-            { id: 602, name: 'عرض الفلانتين', desc: 'مج + فنوس + مدليا', category: 'عروض', price: 320, isMetered: false, image: placeHolderImg },
-            { id: 603, name: 'عرض 250 ج', desc: 'تابلوه 40*30 + مج + ميدليا', category: 'عروض', price: 250, isMetered: false, image: placeHolderImg },
-            { id: 701, name: 'تصوير نسخ', desc: 'الأبيض والأسود (A4)', category: 'طباعة وتصوير', price: 1, isMetered: true, image: placeHolderImg },
-            { id: 702, name: 'تصوير البطاقة', desc: 'الأبيض والأسود', category: 'طباعة وتصوير', price: 1.5, isMetered: true, image: placeHolderImg },
-            { id: 703, name: 'تصوير وش وضهر', desc: 'الأبيض والأسود (A4)', category: 'طباعة وتصوير', price: 1.5, isMetered: true, image: placeHolderImg },
-            { id: 704, name: 'الشخصية', desc: 'الأبيض والأسود', category: 'طباعة وتصوير', price: 2.5, isMetered: true, image: placeHolderImg },
-            { id: 705, name: 'طباعة (من موبايل/فلاشة)', desc: 'الأبيض والأسود', category: 'طباعة وتصوير', price: 2, isMetered: true, image: placeHolderImg },
-            { id: 706, name: 'طباعة/تصوير قطاعي', desc: 'الألوان ليزر (A4) - وش وضهر', category: 'طباعة وتصوير', price: 5, isMetered: true, image: placeHolderImg },
-            { id: 707, name: 'سعر الكميات (بداية من 50)', desc: 'الألوان ليزر (A4)', category: 'طباعة وتصوير', price: 3.5, isMetered: true, image: placeHolderImg },
-            { id: 708, name: 'ألوان قطاعي (A3)', desc: 'المقاس الكبير', category: 'طباعة وتصوير', price: 10, isMetered: true, image: placeHolderImg },
-            { id: 709, name: 'ألوان كميات (A3)', desc: 'المقاس الكبير', category: 'طباعة وتصوير', price: 7, isMetered: true, image: placeHolderImg },
-            { id: 710, name: 'طباعة ألوان (A3)', desc: 'المقاس الكبير', category: 'طباعة وتصوير', price: 25, isMetered: true, image: placeHolderImg }
+            { id: 103, name: 'ساعه', desc: '', category: 'هدايا وإكسسوارات', price: 200, isMetered: false, image: placeHolderImg }
         ];
 
         var products = defaultProducts;
@@ -390,7 +329,7 @@
         let currentSearchQuery = '';
         let currentCategory = '';
 
-        // --- Backup Functions ---
+        // --- Backup Functions (تمت إعادة التفعيل) ---
         function exportBackup() {
             const dataStr = JSON.stringify({ products: window.products, settings: window.settings });
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -408,17 +347,17 @@
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
                     if (data.products && data.settings) {
                         if(confirm('هل أنت متأكد من استعادة هذه النسخة؟ سيتم مسح المنتجات الحالية ووضع منتجات النسخة.')) {
                             window.products = data.products;
                             window.settings = data.settings;
-                            if (window.saveDataToFirebase) window.saveDataToFirebase();
-                            renderProducts();
-                            renderAdminProducts();
-                            applySettings();
+                            if (window.saveDataToFirebase) await window.saveDataToFirebase();
+                            if(window.renderProducts) renderProducts();
+                            if(window.renderAdminProducts) renderAdminProducts();
+                            if(window.applySettings) applySettings();
                             showToast('تمت استعادة البيانات بنجاح!');
                         }
                     } else {
@@ -1074,11 +1013,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         
-        // مسارات جديدة ومقسمة لتجنب حد 1 ميجابايت للملف الواحد
         const settingsRef = doc(db, "Store_Data", "Settings");
         const productsCol = collection(db, "Store_Products");
 
-        // 1. استماع لحظي للإعدادات
         onSnapshot(settingsRef, (docSnap) => {
             if (docSnap.exists()) {
                 window.settings = docSnap.data();
@@ -1089,7 +1026,6 @@
             }
         });
 
-        // 2. استماع لحظي للمنتجات (כל منتج في ملف لوحده!)
         onSnapshot(productsCol, (snapshot) => {
             let loadedProducts = [];
             snapshot.forEach((doc) => {
@@ -1103,32 +1039,26 @@
                 if(window.renderProducts) window.renderProducts();
                 if(window.renderAdminProducts) window.renderAdminProducts();
             } else {
-                // لو السيرفر فاضي تماماً، نرفع المنتجات الافتراضية
                 if(window.saveDataToFirebase && window.products.length > 0) {
                     window.saveDataToFirebase();
                 }
             }
         });
 
-        // دالة الحفظ الجديدة اللي بترفع المنتجات كملفات منفصلة
         window.saveDataToFirebase = async function() {
             try {
                 const btn = document.getElementById('saveBtn');
                 if(btn) btn.innerText = "جاري الحفظ بالسيرفر...";
                 
-                // حفظ الإعدادات
                 await setDoc(settingsRef, window.settings);
 
-                // حفظ المنتجات دفعة واحدة
                 const batch = writeBatch(db);
 
-                // إضافة المنتجات الجديدة وتحديث القديمة
                 window.products.forEach(p => {
                     const pRef = doc(productsCol, p.id.toString());
                     batch.set(pRef, p);
                 });
 
-                // مسح المنتجات اللي إنت حذفتها من المتجر
                 const snapshot = await getDocs(productsCol);
                 const currentIds = window.products.map(p => p.id.toString());
                 snapshot.forEach(doc => {
@@ -1139,7 +1069,7 @@
 
                 await batch.commit();
                 
-                console.log("تم الحفظ في السيرفر بنجاح بدون مشاكل المساحة!");
+                console.log("تم الحفظ في السيرفر بنجاح!");
                 if(btn) btn.innerText = "حفظ المنتج";
             } catch (e) {
                 console.error("Error saving: ", e);
